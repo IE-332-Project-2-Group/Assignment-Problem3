@@ -1,4 +1,7 @@
+
 #Import the data and clean it of Na's. Convert neg,pos to 0,1.
+
+install.packages("dplyr", repos = "http://cran.us.r-project.org")
 library(dplyr)
 aps_failure_data_clean <- read.csv("C:\\Users\\surre\\Desktop\\IE 332\\A2 Q3\\aps_failure_training_set.csv", skip = 20, na.strings = "na")
 aps_failure_data_clean$class <- ifelse(aps_failure_data_clean$class == "pos", 1, 0)
@@ -22,6 +25,12 @@ data_test1 <- create_train_test(aps_failure_data_clean, 0.7, train = FALSE)
 
 
 #Part a
+
+#Installing the necessary packages
+install.packages("rpart", repos="http://cran.us.r-project.org")
+install.packages("rpart.plot", repos="http://cran.us.r-project.org")
+install.packages("caret", repos="http://cran.us.r-project.org")
+install.packages("parsnip", repos="http://cran.us.r-project.org")
 
 # Loading the necessary packages
 library(rpart.plot)
@@ -251,7 +260,7 @@ dev.new()
 
 #Part g
 
-# install.packages("remotes")
+install.packages("remotes", repos="http://cran.us.r-project.org")
 remotes::install_github("grantmcdermott/parttree")
 library(parttree)
 library(parsnip)
