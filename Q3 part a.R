@@ -1,3 +1,8 @@
+#Important:
+#All non-code answers are included in the code as comments
+#The data has been loaded using the file path that is specific to my (Hershi's) computer. Please do change it when loading the dataset.
+#Some sections of the code, especially the plots, take a longer time to load. Please consider the fact that the dataset is huge when encountering this delay.
+
 
 #Import the data and clean it of Na's. Convert neg,pos to 0,1.
 
@@ -54,12 +59,32 @@ risk_test1 <- mean(predict_test1 != data_test1$class)
 predict.train1 <- predict(fit1, data_train1, type = "vector")
 risk_train1 <- mean(predict.train1 != data_train1$class)
 
-# Calculating the false negative rates for training and testing data sets
-train_confusion_matrix1 <- table(data_train1$class, predict.train1)
-test_confusion_matrix1 <- table(data_test1$class, predict_test1)
+train_false_neg_vector <- vector("numeric", 20)
+test_false_neg_vector <- vector("numeric", 20)
 
-train_false_negative_rate <- train_confusion_matrix1[2, 1]/sum(train_confusion_matrix1[2, ])
-test_false_negative_rate <- test_confusion_matrix1[2, 1]/sum(test_confusion_matrix1[2, ])
+for (i in 1:20) {
+  # Training a decision tree model using the training data  
+  fit1 <- rpart(class ~ ., data = data_train1, cp = 0, maxdepth = i + 1)
+  predict.train1 <- predict(fit1, data_train1, type = "vector")
+  predict_test1 <- predict(fit1, data_test1, type = "vector")
+  
+  # Calculating the false negative rates for training and testing data sets
+  train_confusion_matrix1 <- table(data_train1$class, predict.train1)
+  test_confusion_matrix1 <- table(data_test1$class, predict_test1)
+  
+  train_false_neg <- train_confusion_matrix1[2, 1]/sum(train_confusion_matrix1[2, ])
+  test_false_neg <- test_confusion_matrix1[2, 1]/sum(test_confusion_matrix1[2, ])
+  
+  train_false_neg_vector[i] <- train_false_neg
+  test_false_neg_vector[i] <- test_false_neg
+}
+
+plot <- plot(1:20, train_false_neg_vector, type = "o", col = "blue", ylim = range(train_false_neg_vector,
+                                                                                 test_false_neg_vector), xlab = "Size of tree", ylab = "false negative rates", main = paste("Data Size = 20000, Train dataset = 0.7%, CP",
+                                                                                                                                                      0))
+lines(1:20, test_false_neg_vector, type = "o", col = "red")
+legend("bottomright", legend = c("On training data", "On testing data"), col = c("blue", "red"), lty = 1, cex = 0.50)
+
 
 dev.new()
 
@@ -100,8 +125,8 @@ for (j in sequence_cp_pre_pruning) {
   plot <- plot(1:20, train.fnrs, type = "o", col = "blue", ylim = range(train.fnrs,
                                                                        test.fnrs), xlab = "Size of tree", ylab = "false negative rates", main = paste("CP=", j))
   lines(1:20, test.fnrs, type = "o", col = "red")
-  legend("center", legend = c("train.fnr", "test.fnr"), col = c("blue", "red"),
-         lty = 1)
+  legend("bottomright", legend = c("On training data", "On testing data"), col = c("blue", "red"),
+         lty = 1, cex = 0.50)
 }
 
 par(mfrow = c(1, 1))
@@ -148,8 +173,8 @@ for (j in sequence_cp_post_pruning) {
   plot(1:20, train.fnrs1, type = "o", col = "blue", ylim = range(train.fnrs1, test.fnrs1),
        xlab = "Size of tree", ylab = "false negative rates", main = paste("Post-pruning value=", j))
   lines(1:20, test.fnrs1, type = "o", col = "red")
-  legend("center", legend = c("train.fnr1", "test.fnr1"), col = c("blue", "red"),
-         lty = 1)
+  legend("bottomright", legend = c("On training data", "On testing data"), col = c("blue", "red"),
+         lty = 1, cex = 0.50)
 }
 
 par(mfrow = c(1, 1))
@@ -203,22 +228,21 @@ for (i in 1:20) {
   predict.train2 <- predict(fit4, data_train2, type = "vector")
   predict_test2 <- predict(fit4, data_test2, type = "vector")
   
-  # Calculate the false negative rates
-  train_confusion_matrix2 <- table(data_train2$class, predict.train2)
-  test_confusion_matrix2 <- table(data_test2$class, predict_test2)
+  # Calculating the false negative rates
+  train_confusion_matrix4 <- table(data_train2$class, predict.train2)
+  test_confusion_matrix4 <- table(data_test2$class, predict_test2)
   
-  train.fnr2 <- train_confusion_matrix2[2, 1]/sum(train_confusion_matrix2[2, ])
-  test.fnr2 <- test_confusion_matrix2[2, 1]/sum(test_confusion_matrix2[2, ])
+  train.fnr2 <- train_confusion_matrix4[2, 1]/sum(train_confusion_matrix4[2, ])
+  test.fnr2 <- test_confusion_matrix4[2, 1]/sum(test_confusion_matrix4[2, ])
   
   train.fnrs2[i] <- train.fnr2
   test.fnrs2[i] <- test.fnr2
 }
 
 plot <- plot(1:20, train.fnrs2, type = "o", col = "red", ylim = range(train.fnrs2,
-                                                                     test.fnrs2), xlab = "Size of tree", ylab = "false negative rates", main = paste("Data Size = 60000, Train dataset = 0.85%, CP=",
-                                                                                                                                0))
+                                                                     test.fnrs2), xlab = "Size of tree", ylab = "false negative rates", main = paste("Data Size = 60000, Train dataset = 0.8%. CP = 0"))
 lines(1:20, test.fnrs2, type = "o", col = "blue")
-legend("center", legend = c("train.fnr2", "test.fnr2"), col = c("red", "blue"), lty = 1)
+legend("bottomright", legend = c("On training data", "On testing data"), col = c("red", "blue"), lty = 1, cex = 0.50)
 
 #Comparing the decision tree from part d to the tree from part a, we can see that the training and testing risks are lower in part d. 
 # In part d, the training risk is 0.995 and the testing risk is 0.996. These are lower than the training risk of 0.996 and testing risk of 0.997
